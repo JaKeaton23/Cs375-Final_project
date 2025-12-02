@@ -139,6 +139,20 @@ void handle_packet(int client_fd, ChatPacket pkt) {
         broadcast_to_group(groupID, pkt, client_fd);
         totalMessages++;
 
+                // Simple performance print every 20 messages
+        if (totalMessages % 20 == 0) {
+            auto now = std::chrono::steady_clock::now();
+            double secs = std::chrono::duration<double>(now - startTime).count();
+            if (secs > 0.0) {
+                double throughput = totalMessages / secs;
+                std::cout << "[Perf] " << totalMessages
+                          << " messages in " << secs
+                          << " seconds (" << throughput << " msg/sec)"
+                          << std::endl;
+            }
+        }
+
+
     } else if (pkt.type == PKT_LEAVE) {
         {
             std::lock_guard<std::mutex> lock(stateMutex);
